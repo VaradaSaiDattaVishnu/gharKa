@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Upload, X, ImagePlus } from "lucide-react";
 import { createListingSchema, type CreateListingInput } from "@gharka/shared";
-import { CATEGORY_DISPLAY_NAMES, type FoodCategory } from "@gharka/shared";
+import { CATEGORY_DISPLAY_NAMES } from "@gharka/shared";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -137,6 +137,7 @@ export function ListingForm({
             <div className="flex gap-2 flex-wrap mt-3">
               {uploadedImages.map((url, i) => (
                 <div key={i} className="relative h-20 w-20 rounded-xl overflow-hidden group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={url}
                     alt={`Upload ${i + 1}`}

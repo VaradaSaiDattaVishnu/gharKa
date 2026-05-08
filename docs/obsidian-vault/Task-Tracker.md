@@ -2,71 +2,74 @@
 
 ## Build Phases
 
-### Phase 0: Bootstrap (Current)
+### Phase 0: Bootstrap - COMPLETE
 - [x] Master Architecture Document
 - [x] Brand Guide
 - [x] UX Research Document
 - [x] Behavioral Engagement System
 - [x] Obsidian Vault (mappers)
-- [ ] Whimsy & Animation Design
-- [ ] Monorepo initialization
-- [ ] Shared package (schemas, types, constants)
+- [x] Whimsy & Animation Design
+- [x] Visual Assets Guide
+- [x] Monorepo initialization
+- [x] Shared package (schemas, types, constants)
 
-### Phase 1: Backend Foundation
-- [ ] PostgreSQL + PostGIS setup (Docker Compose)
-- [ ] Drizzle schema + migrations
-- [ ] Fastify app factory + plugins
-- [ ] Firebase Auth integration
-- [ ] JWT middleware (sign/verify/refresh)
-- [ ] Role-based authorization middleware
-- [ ] Auth module (verify-firebase, refresh, logout, onboard)
-- [ ] Users module (CRUD)
-- [ ] Listings module (CRUD + PostGIS 5km queries)
-- [ ] Orders module (create, status machine, list)
-- [ ] Messages module (REST + Socket.io)
-- [ ] Upload module (Cloudinary signatures)
-- [ ] Admin module (user mgmt, listing moderation, stats)
-- [ ] Rate limiting + security middleware
+### Phase 1: Backend Foundation - COMPLETE
+- [x] Drizzle schema (5 tables: users, food_listings, orders, messages, refresh_tokens)
+- [x] Fastify app factory + plugins (auth, rate-limit, error-handler, socket)
+- [x] Firebase Auth integration
+- [x] JWT middleware (sign/verify/refresh with rotation)
+- [x] Role-based authorization middleware
+- [x] Auth module (verify-firebase, refresh, logout, onboard)
+- [x] Users module (CRUD)
+- [x] Listings module (CRUD + Haversine 5km queries)
+- [x] Orders module (create, status machine, list)
+- [x] Messages module (REST + Socket.io gateway)
+- [x] Upload module (Cloudinary signatures)
+- [x] Admin module (user mgmt, listing moderation, stats)
+- [x] Rate limiting + security middleware
+- [ ] Docker Compose for PostgreSQL + PostGIS
 - [ ] Seed data
 
-### Phase 2: Web Frontend
-- [ ] Next.js project + Tailwind + shadcn/ui setup
-- [ ] Design system (colors, typography, components)
-- [ ] Three.js landing page hero
-- [ ] Auth pages (phone input, OTP, onboarding)
-- [ ] Main layout (navbar, responsive sidebar)
-- [ ] Food feed page (grid, filters, 5km radius)
-- [ ] Listing detail page
-- [ ] Create/edit listing form
-- [ ] Orders page (buyer + seller views)
-- [ ] Chat system (Socket.io integration)
-- [ ] Profile page
-- [ ] Admin dashboard
-- [ ] Framer Motion transitions + micro-interactions
-- [ ] Behavioral nudges + tooltips
-- [ ] Empty states + loading states
+### Phase 2: Web Frontend - COMPLETE
+- [x] Next.js 14 project + Tailwind + custom theme
+- [x] Design system (brand colors, typography, 10 UI components)
+- [x] Three.js landing page hero (floating thali, steam, particles)
+- [x] Auth pages (phone input, OTP, onboarding with 3 slides)
+- [x] Main layout (glassmorphism navbar, mobile bottom nav, footer)
+- [x] Food feed page (grid, category filter, 5km location, infinite scroll)
+- [x] Listing detail page (parallax header, quantity picker)
+- [x] Create listing form (drag-drop upload, live preview)
+- [x] Orders page (buyer + seller tabs, timeline, status updates)
+- [x] Chat system (Socket.io, conversation list, chat room)
+- [x] Profile page (role switch, stats, admin link)
+- [x] Admin dashboard (stats, user management, listing moderation)
+- [x] Framer Motion transitions + micro-interactions everywhere
+- [x] Behavioral nudges + coach marks (localStorage persistence)
+- [x] Empty states + loading pot animation + skeleton loaders
 
-### Phase 3: Mobile App
-- [ ] Expo project setup
-- [ ] Shared component library (RN Paper/Tamagui)
-- [ ] Auth flow (phone + OTP)
-- [ ] Tab navigation (role-adaptive)
-- [ ] Feed screen with location
-- [ ] Listing detail + order flow
-- [ ] Chat screen
-- [ ] Profile screen
-- [ ] Push notifications (Expo Notifications)
-- [ ] Three.js via expo-gl (adapted)
-- [ ] Reanimated 3 animations
+### Phase 3: Mobile App - COMPLETE
+- [x] Expo SDK setup with Router, fonts, theme system
+- [x] Component library (10 UI + 4 listing + 3 order + 3 chat + 3 shared)
+- [x] Auth flow (phone + OTP + onboarding slides + role selection)
+- [x] Tab navigation (role-adaptive: buyer/seller/both/admin)
+- [x] Feed screen with location, categories, infinite scroll
+- [x] Listing detail + order flow (quantity picker, request dish)
+- [x] Chat screen (Socket.io, inverted list, disclaimer banner)
+- [x] Profile screen (role switch, admin link, logout)
+- [x] Admin screens (stats, users, listings)
+- [x] Reanimated 3 animations (button press, card stagger, shimmer)
+- [x] Haptic feedback on all interactive elements
 
-### Phase 4: Integration & Polish
+### Phase 4: Integration & Polish - PENDING
 - [ ] End-to-end flow testing
 - [ ] Performance optimization
 - [ ] Accessibility audit
 - [ ] Security audit
 - [ ] Cross-browser/device testing
+- [ ] Docker Compose for local dev environment
+- [ ] Seed data script
 
-### Phase 5: Deployment
+### Phase 5: Deployment - PENDING
 - [ ] API deployment (Railway)
 - [ ] Web deployment (Vercel)
 - [ ] Mobile build (EAS Build)

@@ -16,7 +16,7 @@ function getShownMarks(): Set<string> {
 
 function saveShownMarks(marks: Set<string>) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([...marks]));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(marks)));
 }
 
 export function useCoachMarks() {

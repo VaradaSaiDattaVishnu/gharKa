@@ -7,7 +7,6 @@ import { LogOut, User, Settings, ChevronDown } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { motion } from "framer-motion";
 import { ArrowLeft, Info } from "lucide-react";
 import { ChatBubble } from "@/components/chat/chat-bubble";
 import { ChatInput } from "@/components/chat/chat-input";

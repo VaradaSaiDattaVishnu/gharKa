@@ -4,7 +4,6 @@ import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { useLocationStore } from "@/store/location-store";
 import type {
-  ApiResponse,
   PaginatedResponse,
   ListingResponse,
 } from "@gharka/shared";

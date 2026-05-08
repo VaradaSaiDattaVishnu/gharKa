@@ -15,7 +15,7 @@ import { useUpdateOrderStatus } from "@/hooks/use-orders";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
-import { OrderStatus, canTransition, ORDER_STATUS_TRANSITIONS } from "@gharka/shared";
+import { OrderStatus, ORDER_STATUS_TRANSITIONS } from "@gharka/shared";
 
 type Tab = "buyer" | "seller";
 
@@ -24,7 +24,7 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(
     null
   );
-  const { user } = useAuthStore();
+  useAuthStore();
   const { addToast } = useUIStore();
   const router = useRouter();
 

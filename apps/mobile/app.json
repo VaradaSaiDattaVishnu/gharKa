@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "GharKa",
+    "slug": "gharka",
+    "version": "0.1.0",
+    "scheme": "gharka",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF3E0"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.gharka.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "GharKa needs your location to show homemade food available near you.",
+        "NSCameraUsageDescription": "GharKa needs camera access to let you photograph your dishes.",
+        "NSPhotoLibraryUsageDescription": "GharKa needs photo library access to let you add dish photos."
+      }
+    },
+    "android": {
+      "package": "com.gharka.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFF3E0"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "GharKa needs your location to show homemade food available near you."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "GharKa needs photo library access to let you add dish photos.",
+          "cameraPermission": "GharKa needs camera access to let you photograph your dishes."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#E8913A"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

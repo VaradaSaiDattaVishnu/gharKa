@@ -1,7 +1,7 @@
 "use client";
 
-import { forwardRef } from "react";
-import { motion, type HTMLMotionProps } from "framer-motion";
+import { forwardRef, type ReactNode } from "react";
+import { motion } from "framer-motion";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -32,16 +32,32 @@ const buttonVariants = cva(
   }
 );
 
-type MotionButtonProps = HTMLMotionProps<"button">;
-
-export interface ButtonProps
-  extends Omit<MotionButtonProps, "ref">,
-    VariantProps<typeof buttonVariants> {
+export interface ButtonProps extends VariantProps<typeof buttonVariants> {
+  children?: ReactNode;
+  className?: string;
   isLoading?: boolean;
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  "aria-label"?: string;
+  "aria-expanded"?: boolean;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, isLoading, children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      isLoading,
+      children,
+      disabled,
+      type = "button",
+      onClick,
+      ...ariaProps
+    },
+    ref
+  ) => {
     return (
       <motion.button
         ref={ref}
@@ -49,8 +65,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        disabled={isLoading || props.disabled}
-        {...props}
+        disabled={isLoading || disabled}
+        type={type}
+        onClick={onClick}
+        {...ariaProps}
       >
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {children}

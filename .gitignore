@@ -6,6 +6,7 @@ dist
 .env.*.local
 *.log
 *.tsbuildinfo
+firebase-service-account.json
 .DS_Store
 coverage
 .nyc_output
