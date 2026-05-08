@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { type ReactNode } from "react";
+import type React from "react";
 
 const pageVariants = {
   initial: {
@@ -24,7 +24,7 @@ const pageTransition = {
   ease: [0.22, 1, 0.36, 1],
 };
 
-export function PageTransition({ children }: { children: ReactNode }) {
+export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
