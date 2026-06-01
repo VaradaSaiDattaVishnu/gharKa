@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -10,7 +10,7 @@ import { useAuthStore } from "@/store/auth-store";
 export default function MainLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();

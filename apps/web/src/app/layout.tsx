@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import { Nunito, Inter, Caveat } from "next/font/google";
 import { Providers } from "./providers";
 import { ToastContainer } from "@/components/ui/toast";
@@ -48,7 +49,7 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html

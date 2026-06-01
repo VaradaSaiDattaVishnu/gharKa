@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { buildApp } from "./app.js";
 import { getEnv } from "./config/env.js";
 import { closeDb } from "./db/index.js";

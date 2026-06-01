@@ -37,6 +37,7 @@ export interface ButtonProps extends VariantProps<typeof buttonVariants> {
   className?: string;
   isLoading?: boolean;
   disabled?: boolean;
+  id?: string;
   type?: "button" | "submit" | "reset";
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   "aria-label"?: string;

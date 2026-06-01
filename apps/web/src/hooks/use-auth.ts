@@ -2,11 +2,11 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
+import { sendOtp as firebaseSendOtp, verifyOtp as firebaseVerifyOtp } from "@/lib/firebase";
 import { useAuthStore } from "@/store/auth-store";
 import type {
   ApiResponse,
   UserResponse,
-  SendOtpInput,
   OnboardInput,
 } from "@gharka/shared";
 
@@ -14,25 +14,34 @@ interface AuthTokens {
   accessToken: string;
   refreshToken: string;
   user: UserResponse;
+  isNew: boolean;
 }
 
 export function useSendOtp() {
   return useMutation({
-    mutationFn: (data: SendOtpInput) =>
-      api.post<ApiResponse<{ message: string }>>("/api/auth/send-otp", data),
+    mutationFn: (data: { phone: string }) => firebaseSendOtp(data.phone),
   });
 }
 
 export function useVerifyOtp() {
-  const { login } = useAuthStore();
+  const { login, setOnboarded } = useAuthStore();
 
   return useMutation({
-    mutationFn: (data: { firebaseToken: string }) =>
-      api.post<ApiResponse<AuthTokens>>("/api/auth/verify", data),
+    mutationFn: async (data: { code: string }) => {
+      const firebaseToken = await firebaseVerifyOtp(data.code);
+      const response = await api.post<ApiResponse<AuthTokens>>(
+        "/api/auth/verify-firebase",
+        { firebaseToken }
+      );
+      return response;
+    },
     onSuccess: (response) => {
-      const { accessToken, refreshToken, user } = response.data;
+      const { accessToken, refreshToken, user, isNew } = response.data;
       api.setAuthTokens(accessToken, refreshToken);
       login(accessToken, refreshToken, user);
+      if (!isNew && user.name) {
+        setOnboarded(true);
+      }
     },
   });
 }

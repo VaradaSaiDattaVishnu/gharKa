@@ -67,6 +67,16 @@ export async function listNearby(query: ListingsQuery) {
   return { items, meta };
 }
 
+export async function listBySeller(sellerId: string) {
+  const db = getDb();
+  const rows = await db
+    .select()
+    .from(foodListings)
+    .where(eq(foodListings.sellerId, sellerId))
+    .orderBy(sql`${foodListings.createdAt} DESC`);
+  return { items: rows, meta: { hasMore: false, cursor: null } };
+}
+
 export async function getById(id: string) {
   const db = getDb();
   const [listing] = await db

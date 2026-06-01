@@ -8,6 +8,11 @@ export async function list(request: FastifyRequest, reply: FastifyReply) {
   return reply.send({ success: true, data: result.items, meta: result.meta });
 }
 
+export async function mine(request: FastifyRequest, reply: FastifyReply) {
+  const result = await listingsService.listBySeller(request.userId);
+  return reply.send({ success: true, data: result.items, meta: result.meta });
+}
+
 export async function getById(request: FastifyRequest, reply: FastifyReply) {
   const params = request.params as { id: string };
   const listing = await listingsService.getById(params.id);

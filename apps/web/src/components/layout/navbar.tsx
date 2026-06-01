@@ -34,7 +34,7 @@ export function Navbar() {
         style={{ opacity: bgOpacity }}
       />
       <nav className="relative mx-auto max-w-6xl h-full flex items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
+        <Link href={isAuthenticated ? "/feed" : "/"} className="flex items-center gap-2 shrink-0">
           <span
             className="font-heading text-2xl font-extrabold text-turmeric"
             aria-label="GharKa home"

@@ -16,6 +16,12 @@ export default async function listingsRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get(
+    "/mine",
+    { preHandler: [authenticate] },
+    controller.mine
+  );
+
+  fastify.get(
     "/:id",
     controller.getById
   );

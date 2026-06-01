@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -8,6 +8,7 @@ import { Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSendOtp } from "@/hooks/use-auth";
+import { setupRecaptcha } from "@/lib/firebase";
 import { useUIStore } from "@/store/ui-store";
 
 export default function LoginPage() {
@@ -16,13 +17,16 @@ export default function LoginPage() {
   const sendOtp = useSendOtp();
   const { addToast } = useUIStore();
 
+  useEffect(() => {
+    setupRecaptcha("send-otp-btn");
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const fullPhone = phone.startsWith("+") ? phone : `+91${phone}`;
 
     try {
       await sendOtp.mutateAsync({ phone: fullPhone });
-      // Store phone for verify page
       if (typeof window !== "undefined") {
         sessionStorage.setItem("gharka_phone", fullPhone);
       }
@@ -83,6 +87,7 @@ export default function LoginPage() {
             </div>
 
             <Button
+              id="send-otp-btn"
               type="submit"
               variant="primary"
               size="lg"

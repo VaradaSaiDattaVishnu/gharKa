@@ -6,7 +6,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useVerifyOtp, useSendOtp } from "@/hooks/use-auth";
+import { useVerifyOtp } from "@/hooks/use-auth";
+import { sendOtp as firebaseResendOtp, setupRecaptcha } from "@/lib/firebase";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
 
@@ -14,9 +15,9 @@ export default function VerifyPage() {
   const router = useRouter();
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [resendTimer, setResendTimer] = useState(30);
+  const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const verifyOtp = useVerifyOtp();
-  const sendOtp = useSendOtp();
   const { isOnboarded } = useAuthStore();
   const { addToast } = useUIStore();
 
@@ -34,8 +35,7 @@ export default function VerifyPage() {
   const handleVerify = useCallback(
     async (code: string) => {
       try {
-        // In production, use Firebase verification
-        await verifyOtp.mutateAsync({ firebaseToken: code });
+        await verifyOtp.mutateAsync({ code });
         addToast("Verified successfully!", "success");
         if (isOnboarded) {
           router.push("/feed");
@@ -93,12 +93,16 @@ export default function VerifyPage() {
       router.push("/login");
       return;
     }
+    setIsResending(true);
     try {
-      await sendOtp.mutateAsync({ phone });
+      setupRecaptcha("resend-otp-btn");
+      await firebaseResendOtp(phone);
       setResendTimer(30);
       addToast("OTP resent!", "info");
     } catch {
       addToast("Failed to resend OTP", "error");
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -165,10 +169,11 @@ export default function VerifyPage() {
               </p>
             ) : (
               <Button
+                id="resend-otp-btn"
                 variant="link"
                 size="sm"
                 onClick={handleResend}
-                isLoading={sendOtp.isPending}
+                isLoading={isResending}
               >
                 Resend OTP
               </Button>
