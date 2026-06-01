@@ -1,16 +1,9 @@
-# Render Blueprint for the GharKa API + PostgreSQL database.
+# Render Blueprint for the GharKa API. The database is hosted on Neon
+# (external) — paste its connection string into DATABASE_URL when prompted.
 # Deploy: Render Dashboard → New → Blueprint → connect this repo.
-# Render reads this file, provisions the DB + web service, and prompts only
-# for the secrets marked `sync: false` below.
+# Render reads this file, creates the web service, and prompts only for the
+# secrets marked `sync: false` below.
 # Docs: https://render.com/docs/blueprint-spec
-
-databases:
-  - name: gharka-db
-    databaseName: gharka
-    user: gharka
-    plan: free
-    region: singapore # closest Render region to India
-    postgresMajorVersion: "16"
 
 services:
   - type: web
@@ -28,9 +21,7 @@ services:
       - key: NODE_VERSION
         value: "20.18.1"
       - key: DATABASE_URL
-        fromDatabase:
-          name: gharka-db
-          property: connectionString
+        sync: false # paste your Neon connection string (postgresql://...neon.tech/...?sslmode=require)
       - key: JWT_SECRET
         generateValue: true # Render generates a secure random value (>=32 chars)
       - key: JWT_REFRESH_SECRET
