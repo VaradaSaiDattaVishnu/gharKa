@@ -10,7 +10,11 @@ name: Keep API awake
 
 on:
   schedule:
-    - cron: "*/10 * * * *"   # every 10 minutes (buffer against the 15-min sleep)
+    # BACKUP ONLY. GitHub's scheduled crons are best-effort and frequently
+    # delayed/skipped under load, so this can still slip past the 15-min sleep.
+    # The RELIABLE keep-alive is an external monitor (cron-job.org / UptimeRobot)
+    # pinging /api/health every 5 min — see DEPLOY_CHECKLIST.md.
+    - cron: "*/5 * * * *"    # aim for every 5 min (GitHub may run it less often)
   workflow_dispatch: {}        # adds a manual "Run workflow" button
 
 jobs:

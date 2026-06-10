@@ -12,11 +12,14 @@ services:
     plan: free
     region: singapore
     healthCheckPath: /api/health
-    # corepack provides the pnpm version pinned in package.json (packageManager).
-    # The filter "@gharka/api..." builds @gharka/shared first, then the API.
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter "@gharka/api..." run build
-    # Apply DB migrations (idempotent) before starting the server.
-    startCommand: corepack enable && pnpm --filter @gharka/api run db:migrate && pnpm --filter @gharka/api run start
+    # Install pnpm directly via npm (NOT corepack): the corepack bundled with
+    # Node 20.x fails npm-registry signature verification ("Cannot find matching
+    # keyid") and breaks the build. The filter "@gharka/api..." builds
+    # @gharka/shared first, then the API.
+    buildCommand: npm install -g pnpm@10.33.0 && pnpm install --frozen-lockfile && pnpm --filter "@gharka/api..." run build
+    # Apply DB migrations (idempotent) before starting the server. Uses the pnpm
+    # installed globally during build (Render runs build + start in one env).
+    startCommand: pnpm --filter @gharka/api run db:migrate && pnpm --filter @gharka/api run start
     envVars:
       - key: NODE_VERSION
         value: "20.18.1"
