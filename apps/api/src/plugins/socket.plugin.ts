@@ -15,7 +15,9 @@ export default fp(async function socketPlugin(fastify: FastifyInstance) {
   const env = getEnv();
   const io = new Server(fastify.server, {
     cors: {
-      origin: env.CORS_ORIGINS.split(","),
+      origin: env.CORS_ORIGINS.split(",")
+        .map((o) => o.trim().replace(/\/+$/, ""))
+        .filter(Boolean),
       credentials: true,
     },
     path: "/ws",

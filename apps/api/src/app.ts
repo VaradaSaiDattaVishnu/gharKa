@@ -24,7 +24,9 @@ export async function buildApp() {
   });
 
   await fastify.register(cors, {
-    origin: env.CORS_ORIGINS.split(","),
+    origin: env.CORS_ORIGINS.split(",")
+      .map((o) => o.trim().replace(/\/+$/, ""))
+      .filter(Boolean),
     credentials: true,
   });
 
