@@ -1,0 +1,24 @@
+# GharKa API — Caddy reverse proxy.
+#
+# Caddy automatically obtains and renews a FREE Let's Encrypt HTTPS certificate
+# for the domain below. It also forwards WebSocket upgrades, so the Socket.io
+# endpoint at /ws works with no extra config.
+#
+# SETUP:
+#   1. Replace  api.example.com  with YOUR domain (e.g. gharka.duckdns.org).
+#   2. sudo cp deploy/oracle/Caddyfile /etc/caddy/Caddyfile
+#   3. sudo nano /etc/caddy/Caddyfile      # edit the domain
+#   4. sudo systemctl reload caddy
+#
+# REQUIREMENTS for the certificate to issue:
+#   - Your domain's A record points to this VM's public IP.
+#   - Ports 80 AND 443 are open (OCI Security List + the VM iptables rules
+#     added by setup.sh).
+
+api.example.com {
+	encode zstd gzip
+
+	# Proxies both the REST API (/api/*) and the Socket.io WebSocket (/ws)
+	# to the Node process. Caddy passes WebSocket upgrade headers automatically.
+	reverse_proxy 127.0.0.1:3001
+}
