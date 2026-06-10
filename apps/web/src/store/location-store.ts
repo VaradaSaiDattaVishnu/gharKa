@@ -9,6 +9,7 @@ interface LocationState {
   isLoading: boolean;
   error: string | null;
   requestLocation: () => Promise<void>;
+  geocodeAndSet: (query: string) => Promise<void>;
   setLocation: (lat: number, lng: number, address?: string) => void;
   clearLocation: () => void;
 }
@@ -66,6 +67,50 @@ export const useLocationStore = create<LocationState>()(
             }
           }
           set({ error: message, isLoading: false });
+        }
+      },
+
+      geocodeAndSet: async (query) => {
+        const q = query.trim();
+        if (!q) return;
+        set({ isLoading: true, error: null });
+        try {
+          // Free, no-key geocoding via OpenStreetMap Nominatim.
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(
+              q
+            )}`,
+            { headers: { Accept: "application/json" } }
+          );
+          if (!res.ok) throw new Error("geocode request failed");
+          const results = (await res.json()) as Array<{
+            lat: string;
+            lon: string;
+            display_name: string;
+          }>;
+          if (results.length === 0) {
+            set({
+              error:
+                "Couldn't find that place. Try a more specific area, city, or pincode.",
+              isLoading: false,
+            });
+            return;
+          }
+          const { lat, lon, display_name } = results[0];
+          set({
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lon),
+            address: display_name,
+            hasPermission: true,
+            isLoading: false,
+            error: null,
+          });
+        } catch {
+          set({
+            error:
+              "Couldn't look up that location. Check your connection and try again.",
+            isLoading: false,
+          });
         }
       },
 
