@@ -35,8 +35,11 @@ export const useLocationStore = create<LocationState>()(
           const position = await new Promise<GeolocationPosition>(
             (resolve, reject) => {
               navigator.geolocation.getCurrentPosition(resolve, reject, {
-                enableHighAccuracy: true,
-                timeout: 10000,
+                // High accuracy (GPS) is slow and frequently fails on desktops
+                // with no GPS chip; network/Wi-Fi positioning is accurate enough
+                // for a 5km radius and far more reliable. Generous timeout too.
+                enableHighAccuracy: false,
+                timeout: 20000,
                 maximumAge: 300000,
               });
             }
@@ -49,12 +52,19 @@ export const useLocationStore = create<LocationState>()(
             isLoading: false,
           });
         } catch (err) {
-          const message =
-            err instanceof GeolocationPositionError
-              ? err.code === 1
-                ? "Location permission denied"
-                : "Unable to detect your location"
-              : "Failed to get location";
+          let message = "Failed to get your location. Please try again.";
+          if (err instanceof GeolocationPositionError) {
+            if (err.code === 1) {
+              message =
+                "Location permission was denied. Allow location for this site in your browser, then tap Enable Location again.";
+            } else if (err.code === 2) {
+              message =
+                "Couldn't get a location fix. Make sure location services are turned on for your browser in your device settings, then try again.";
+            } else if (err.code === 3) {
+              message =
+                "Location request timed out. Check your connection and try again.";
+            }
+          }
           set({ error: message, isLoading: false });
         }
       },
