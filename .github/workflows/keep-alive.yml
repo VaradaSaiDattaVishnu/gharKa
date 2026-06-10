@@ -1,0 +1,24 @@
+name: Keep API awake
+
+# Pings the Render health endpoint so the free-tier service never idles into its
+# 15-minute sleep (no more ~50s cold starts).
+#
+# Best-effort by design: the step always exits 0, so it never spams failure emails
+# (e.g. before the API is deployed, or while it's waking up). Its only job is to
+# poke the service. For precise timing, also add an UptimeRobot monitor — GitHub's
+# scheduled cron can drift by several minutes under load.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes (buffer against the 15-min sleep)
+  workflow_dispatch: {}        # adds a manual "Run workflow" button
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /api/health
+        run: |
+          curl -sS -o /dev/null -w "ping -> HTTP %{http_code}\n" \
+            --max-time 90 https://gharka-api.onrender.com/api/health \
+            || echo "ping failed (service may be sleeping or not deployed yet)"
