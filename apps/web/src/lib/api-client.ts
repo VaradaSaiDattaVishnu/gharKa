@@ -15,6 +15,7 @@ interface RequestOptions extends RequestInit {
 
 class ApiClient {
   private baseUrl: string;
+  private refreshPromise: Promise<boolean> | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -75,6 +76,21 @@ class ApiClient {
   }
 
   private async refreshToken(): Promise<boolean> {
+    // Dedupe concurrent refreshes. If several requests 401 at the same time
+    // (e.g. a page firing multiple calls after the access token expired), they
+    // must share ONE refresh call — otherwise each sends the same refresh
+    // token, the server rotates (invalidates) it on the first call, and the
+    // rest fail and force a logout. That race is the "logged out when I click
+    // around" bug.
+    if (!this.refreshPromise) {
+      this.refreshPromise = this.doRefresh().finally(() => {
+        this.refreshPromise = null;
+      });
+    }
+    return this.refreshPromise;
+  }
+
+  private async doRefresh(): Promise<boolean> {
     const refreshToken = localStorage.getItem("gharka_refresh");
     if (!refreshToken) return false;
 

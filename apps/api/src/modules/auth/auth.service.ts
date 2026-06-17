@@ -39,7 +39,7 @@ export async function verifyFirebaseAndLogin(firebaseToken: string) {
   await db.insert(refreshTokens).values({
     userId: user.id,
     tokenHash: hashToken(refreshToken),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   });
 
   return { user, accessToken, refreshToken, isNew };
@@ -72,7 +72,7 @@ export async function refreshAccessToken(token: string) {
   await db.insert(refreshTokens).values({
     userId: user.id,
     tokenHash: hashToken(newRefreshToken),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   });
 
   return { accessToken, refreshToken: newRefreshToken };
