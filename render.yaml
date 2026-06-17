@@ -23,6 +23,11 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "20.18.1"
+      # Cap V8's heap below the 512 MB free-tier limit so it garbage-collects
+      # aggressively instead of growing until the OS OOM-kills the process
+      # (exit 137 / restart loop). Leaves headroom for non-heap memory.
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=400"
       - key: DATABASE_URL
         sync: false # paste your Neon connection string (postgresql://...neon.tech/...?sslmode=require)
       - key: JWT_SECRET

@@ -13,15 +13,19 @@ export default function MainLayout({
   children: ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isOnboarded } = useAuthStore();
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login");
+    } else if (!isOnboarded) {
+      // Authenticated but profile/role never set — finish onboarding before
+      // landing on a page that reads user.name / user.role.
+      router.push("/onboard");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isOnboarded, router]);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !isOnboarded) {
     return null;
   }
 

@@ -10,7 +10,11 @@ export function getDb() {
   if (_db) return _db;
   const env = getEnv();
   _sql = postgres(env.DATABASE_URL, {
-    max: 20,
+    // Render free tier is 512 MB RAM and Neon free has a low connection ceiling;
+    // 20 pooled connections is wasteful and a memory/OOM risk for a low-traffic
+    // app. 5 is plenty here. idle_timeout closes idle conns so we don't hold
+    // them open across Neon's 5-min compute auto-suspend.
+    max: 5,
     idle_timeout: 20,
     connect_timeout: 10,
   });

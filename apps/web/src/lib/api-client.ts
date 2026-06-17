@@ -1,5 +1,13 @@
+// NEXT_PUBLIC_* values are inlined at BUILD time. If NEXT_PUBLIC_API_URL is not
+// set in the Vercel project, a production build would otherwise bake in
+// "http://localhost:3001" and every API call from the deployed site fails
+// (looks like "the app doesn't work"). So in production fall back to the real
+// Render URL; only local dev falls back to localhost.
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "https://gharka-api.onrender.com"
+    : "http://localhost:3001");
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
@@ -71,11 +79,14 @@ class ApiClient {
     if (!refreshToken) return false;
 
     try {
-      const response = await fetch(`${this.baseUrl}/api/auth/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken }),
-      });
+      const response = await this.fetchWithTimeout(
+        `${this.baseUrl}/api/auth/refresh`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken }),
+        }
+      );
 
       if (!response.ok) return false;
 
@@ -93,6 +104,43 @@ class ApiClient {
     }
   }
 
+  private async fetchWithTimeout(
+    url: string,
+    options: RequestInit,
+    timeoutMs = 70000
+  ): Promise<Response> {
+    // Render's free tier sleeps after ~15 min idle; the first request then
+    // waits ~30-60s for a cold start. Allow for that, but never hang forever.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private normalizeError(error: unknown): Error {
+    if (
+      error &&
+      typeof error === "object" &&
+      "name" in error &&
+      (error as { name?: string }).name === "AbortError"
+    ) {
+      return new Error(
+        "The server is taking too long to respond — it may be waking up. Please try again in a moment."
+      );
+    }
+    // fetch() throws a TypeError when the host is unreachable (asleep / offline / CORS).
+    if (error instanceof TypeError) {
+      return new Error(
+        "Couldn't reach the server. It may be waking up — please try again in a moment."
+      );
+    }
+    if (error instanceof Error) return error;
+    return new Error("Something went wrong. Please try again.");
+  }
+
   async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const { params, ...fetchOptions } = options;
     const url = this.buildUrl(path, params);
@@ -108,7 +156,7 @@ class ApiClient {
     }
 
     try {
-      const response = await fetch(url, {
+      const response = await this.fetchWithTimeout(url, {
         ...fetchOptions,
         headers,
       });
@@ -116,7 +164,7 @@ class ApiClient {
       return await this.handleResponse<T>(response);
     } catch (error) {
       if (error instanceof Error && error.message === "RETRY") {
-        const retryResponse = await fetch(url, {
+        const retryResponse = await this.fetchWithTimeout(url, {
           ...fetchOptions,
           headers: {
             ...headers,
@@ -125,7 +173,7 @@ class ApiClient {
         });
         return this.handleResponse<T>(retryResponse);
       }
-      throw error;
+      throw this.normalizeError(error);
     }
   }
 
@@ -161,13 +209,16 @@ class ApiClient {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${this.baseUrl}${path}`, {
-      method: "POST",
-      headers,
-      body: formData,
-    });
-
-    return this.handleResponse<T>(response);
+    try {
+      const response = await this.fetchWithTimeout(
+        `${this.baseUrl}${path}`,
+        { method: "POST", headers, body: formData },
+        120000
+      );
+      return await this.handleResponse<T>(response);
+    } catch (error) {
+      throw this.normalizeError(error);
+    }
   }
 
   setAuthTokens(accessToken: string, refreshToken?: string) {

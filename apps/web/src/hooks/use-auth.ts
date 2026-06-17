@@ -51,9 +51,17 @@ export function useOnboard() {
 
   return useMutation({
     mutationFn: (data: OnboardInput) =>
-      api.post<ApiResponse<UserResponse>>("/api/auth/onboard", data),
+      api.post<ApiResponse<{ user: UserResponse; accessToken: string }>>(
+        "/api/auth/onboard",
+        data
+      ),
     onSuccess: (response) => {
-      setUser(response.data);
+      const { user, accessToken } = response.data;
+      // Onboarding can change the role (everyone starts as BUYER, then may pick
+      // SELLER), so the API mints a fresh JWT with the new role claim. Persist it
+      // — otherwise the old token is sent and SELLER-only routes 403.
+      api.setAuthTokens(accessToken);
+      setUser(user);
       setOnboarded(true);
     },
   });

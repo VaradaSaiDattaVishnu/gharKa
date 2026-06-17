@@ -18,6 +18,17 @@ async function main() {
   process.on("SIGTERM", () => shutdown("SIGTERM"));
   process.on("SIGINT", () => shutdown("SIGINT"));
 
+  // Crash guards: on a free tier each process death is ~50s of downtime while it
+  // restarts. Fastify already isolates per-request errors; these catch the stray
+  // rejections/exceptions (e.g. from Socket.io or timers) that would otherwise
+  // kill the whole process. Log loudly and stay up rather than restart-loop.
+  process.on("unhandledRejection", (reason) => {
+    logger.error({ reason }, "Unhandled promise rejection — process kept alive");
+  });
+  process.on("uncaughtException", (err) => {
+    logger.error(err, "Uncaught exception — process kept alive");
+  });
+
   try {
     await app.listen({ port: env.PORT, host: "0.0.0.0" });
     logger.info({ port: env.PORT }, "Server started");

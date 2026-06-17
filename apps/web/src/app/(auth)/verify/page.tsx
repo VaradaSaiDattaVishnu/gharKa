@@ -8,7 +8,6 @@ import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useVerifyOtp } from "@/hooks/use-auth";
 import { sendOtp as firebaseResendOtp, setupRecaptcha } from "@/lib/firebase";
-import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
 
 export default function VerifyPage() {
@@ -18,7 +17,6 @@ export default function VerifyPage() {
   const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const verifyOtp = useVerifyOtp();
-  const { isOnboarded } = useAuthStore();
   const { addToast } = useUIStore();
 
   useEffect(() => {
@@ -35,9 +33,12 @@ export default function VerifyPage() {
   const handleVerify = useCallback(
     async (code: string) => {
       try {
-        await verifyOtp.mutateAsync({ code });
+        const res = await verifyOtp.mutateAsync({ code });
         addToast("Verified successfully!", "success");
-        if (isOnboarded) {
+        // Decide routing from the fresh server response, not a stale store value:
+        // returning users who already have a profile skip onboarding.
+        const { isNew, user } = res.data;
+        if (!isNew && user.name) {
           router.push("/feed");
         } else {
           router.push("/onboard");
@@ -51,7 +52,7 @@ export default function VerifyPage() {
         inputRefs.current[0]?.focus();
       }
     },
-    [verifyOtp, isOnboarded, router, addToast]
+    [verifyOtp, router, addToast]
   );
 
   const handleInput = (index: number, value: string) => {
