@@ -40,7 +40,13 @@ export async function buildApp() {
 
   fastify.get("/api/health", async () => ({
     success: true,
-    data: { status: "ok", timestamp: new Date().toISOString() },
+    data: {
+      status: "ok",
+      // Render injects RENDER_GIT_COMMIT at runtime; exposing it here lets us
+      // confirm exactly which commit is live (i.e. whether a push deployed).
+      version: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? "dev",
+      timestamp: new Date().toISOString(),
+    },
   }));
 
   await fastify.register(authRoutes, { prefix: "/api/auth" });
