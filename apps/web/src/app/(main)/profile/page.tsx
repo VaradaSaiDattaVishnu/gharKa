@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -14,21 +15,61 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { LoadingPot } from "@/components/shared/loading-pot";
 import { useAuthStore } from "@/store/auth-store";
+import { useMe } from "@/hooks/use-auth";
 import Link from "next/link";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, setUser, logout } = useAuthStore();
+  const me = useMe();
+
+  // Pull the freshest user from the server into the store. This also self-heals
+  // a missing or corrupted stored user (e.g. from the earlier onboard bug that
+  // wrote the wrong shape), so the navbar and the rest of the app recover too.
+  useEffect(() => {
+    if (me.data?.data) {
+      setUser(me.data.data);
+    }
+  }, [me.data, setUser]);
 
   const handleLogout = () => {
     logout();
     router.push("/");
   };
 
-  if (!user) return null;
+  // Prefer the server copy when available; fall back to whatever is stored.
+  const currentUser = me.data?.data ?? user;
 
-  const isAdmin = user.role === "ADMIN";
+  // Never render a blank page: show a loader while fetching, or a recoverable
+  // message if the profile genuinely can't be loaded.
+  if (!currentUser) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4 text-center">
+        {me.isLoading ? (
+          <LoadingPot size="lg" />
+        ) : (
+          <>
+            <p className="font-body text-slate">
+              We couldn&apos;t load your profile. Please log in again.
+            </p>
+            <Button
+              variant="primary"
+              onClick={() => {
+                logout();
+                router.push("/login");
+              }}
+            >
+              Go to login
+            </Button>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  const isAdmin = currentUser.role === "ADMIN";
 
   return (
     <div className="mx-auto max-w-md px-4 sm:px-6 py-6">
@@ -42,36 +83,36 @@ export default function ProfilePage() {
           <div className="h-20 bg-gradient-to-r from-turmeric to-terracotta" />
           <CardContent className="-mt-10 flex flex-col items-center text-center pb-6">
             <Avatar
-              src={user.avatarUrl}
-              name={user.name}
+              src={currentUser.avatarUrl}
+              name={currentUser.name}
               size="xl"
               blob
               className="border-4 border-white shadow-md"
             />
             <h2 className="font-heading text-xl font-bold text-charcoal mt-3">
-              {user.name || "GharKa User"}
+              {currentUser.name || "GharKa User"}
             </h2>
-            <p className="text-sm font-body text-slate">{user.phone}</p>
+            <p className="text-sm font-body text-slate">{currentUser.phone}</p>
             <div className="flex items-center gap-2 mt-2">
               <Badge
                 variant={
-                  user.role === "SELLER"
+                  currentUser.role === "SELLER"
                     ? "coriander"
-                    : user.role === "ADMIN"
+                    : currentUser.role === "ADMIN"
                       ? "terracotta"
                       : "turmeric"
                 }
               >
-                {user.role === "SELLER" && (
+                {currentUser.role === "SELLER" && (
                   <ChefHat className="h-3 w-3 mr-1" />
                 )}
-                {user.role === "BUYER" && (
+                {currentUser.role === "BUYER" && (
                   <ShoppingBag className="h-3 w-3 mr-1" />
                 )}
-                {user.role === "ADMIN" && (
+                {currentUser.role === "ADMIN" && (
                   <Shield className="h-3 w-3 mr-1" />
                 )}
-                {user.role}
+                {currentUser.role}
               </Badge>
             </div>
           </CardContent>
